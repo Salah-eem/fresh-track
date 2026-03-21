@@ -1,0 +1,53 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  passwordHash   String
+  name           String?
+  inventoryItems InventoryItem[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Product {
+  barcode   String   @id
+  name      String
+  brand     String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InventoryItem {
+  id            String             @id @default(uuid())
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  barcode       String
+  name          String
+  brand         String?
+  imageUrl      String?
+  expiryDate    DateTime
+  isExpired     Boolean            @default(false)
+  notifications NotificationSent[]
+  addedAt       DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model NotificationSent {
+  id              String        @id @default(uuid())
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  inventoryItemId String
+  type            String        // "THREE_DAYS" or "DAY_OF"
+  sentAt          DateTime      @default(now())
+
+  @@unique([inventoryItemId, type])
+}
