@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
-import { PackageSearch, History, LogOut, Plus } from 'lucide-react';
+import { PackageSearch, History, LogOut, Plus, ChefHat } from 'lucide-react';
 
 export default function Navbar() {
   const { isAuthenticated, logout } = useAuth();
@@ -22,6 +22,12 @@ export default function Navbar() {
           <Plus className="w-8 h-8" />
         </div>
       </Link>
+
+      <Link href="/recipes" className="flex flex-col items-center justify-center w-16 h-full text-foreground/60 hover:text-primary transition-all hover:scale-110 active:scale-95">
+        <ChefHat className="w-6 h-6 mb-1" />
+        <span className="text-[10px] font-semibold tracking-wide uppercase">Recipes</span>
+      </Link>
+
 
       <Link href="/history" className="flex flex-col items-center justify-center w-16 h-full text-foreground/60 hover:text-primary transition-all hover:scale-110 active:scale-95">
         <History className="w-6 h-6 mb-1" />

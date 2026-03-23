@@ -8,6 +8,7 @@ import { ProductsModule } from './products/products.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { OcrModule } from './ocr/ocr.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { RecipesModule } from './recipes/recipes.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     InventoryModule,
     OcrModule,
     NotificationsModule,
+    RecipesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
