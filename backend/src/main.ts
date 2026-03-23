@@ -13,12 +13,13 @@ async function bootstrap() {
   
   // Enable CORS for frontend connection
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000' || 'https://fresh-track-chi.vercel.app',
     credentials: true,
   });
 
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');
-  console.log(`Application is running on: http://localhost:${port}`);
+  const url = await app.getUrl();
+  console.log(`Application is running on: ${url}`);
 }
 bootstrap();
