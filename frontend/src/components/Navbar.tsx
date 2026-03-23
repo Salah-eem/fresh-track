@@ -10,27 +10,27 @@ export default function Navbar() {
   if (!isAuthenticated) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-16 px-4 pb-safe shadow-[0_-4px_6px_-2px_rgba(0,0,0,0.05)] z-50">
-      <Link href="/dashboard" className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-green-600 transition-colors">
+    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md h-16 px-6 glass-nav rounded-2xl flex justify-around items-center shadow-2xl z-50 border border-white/20">
+      <Link href="/dashboard" className="flex flex-col items-center justify-center w-16 h-full text-foreground/60 hover:text-primary transition-all hover:scale-110 active:scale-95">
         <PackageSearch className="w-6 h-6 mb-1" />
-        <span className="text-[10px] font-medium">Inventory</span>
+        <span className="text-[10px] font-semibold tracking-wide uppercase">Inventory</span>
       </Link>
       
-      <Link href="/add" className="relative group">
-        <div className="absolute inset-0 bg-green-200 rounded-full blur-md opacity-50 group-hover:opacity-100 transition-opacity"></div>
-        <div className="relative flex items-center justify-center w-12 h-12 -mt-8 bg-gradient-to-tr from-green-500 to-emerald-400 text-white rounded-full shadow-lg transform transition-transform group-hover:scale-110 group-active:scale-95">
-          <Plus className="w-6 h-6" />
+      <Link href="/add" className="relative group -mt-12">
+        <div className="absolute inset-0 bg-primary/40 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500 scale-150"></div>
+        <div className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-br from-primary to-emerald-600 text-primary-foreground rounded-2xl shadow-[0_8px_16px_-4px_rgba(16,185,129,0.4)] transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 group-active:scale-95">
+          <Plus className="w-8 h-8" />
         </div>
       </Link>
 
-      <Link href="/history" className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-green-600 transition-colors">
+      <Link href="/history" className="flex flex-col items-center justify-center w-16 h-full text-foreground/60 hover:text-primary transition-all hover:scale-110 active:scale-95">
         <History className="w-6 h-6 mb-1" />
-        <span className="text-[10px] font-medium">History</span>
+        <span className="text-[10px] font-semibold tracking-wide uppercase">History</span>
       </Link>
       
-      <button onClick={logout} className="flex flex-col items-center justify-center w-16 h-full text-gray-500 hover:text-red-500 transition-colors">
+      <button onClick={logout} className="flex flex-col items-center justify-center w-16 h-full text-foreground/40 hover:text-red-500 transition-all hover:scale-110 active:scale-95">
         <LogOut className="w-6 h-6 mb-1" />
-        <span className="text-[10px] font-medium">Logout</span>
+        <span className="text-[10px] font-semibold tracking-wide uppercase">Logout</span>
       </button>
     </nav>
   );

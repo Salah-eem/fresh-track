@@ -131,11 +131,16 @@ export default function AddProduct() {
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 pb-24 max-w-lg mx-auto bg-white">
-      <header className="mb-8 mt-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Add Item</h1>
-        <div className="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
-          Step {step === 'BARCODE' ? 1 : step === 'INFO' ? 2 : step === 'OCR' ? 3 : 4} of 4
+    <div className="min-h-screen p-6 pb-32 max-w-lg mx-auto page-transition">
+      <header className="mb-10 mt-6">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">Add Item</h1>
+          <div className="text-[10px] font-bold text-primary bg-primary/10 px-3 py-1 rounded-full uppercase tracking-widest border border-primary/20">
+            Step {step === 'BARCODE' ? 1 : step === 'INFO' ? 2 : step === 'OCR' ? 3 : 4} / 4
+          </div>
+        </div>
+        <div className="w-full bg-foreground/5 h-1.5 rounded-full overflow-hidden flex gap-1">
+          <div className={`h-full bg-primary transition-all duration-500 rounded-full ${step === 'BARCODE' ? 'w-1/4' : step === 'INFO' ? 'w-1/2' : step === 'OCR' ? 'w-3/4' : 'w-full'}`} />
         </div>
       </header>
 
@@ -148,17 +153,17 @@ export default function AddProduct() {
 
       {/* STEP 1: BARCODE */}
       {step === 'BARCODE' && (
-        <div className="space-y-6">
-          <p className="text-gray-600">Scan the barcode to automatically fetch product details.</p>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <p className="text-foreground/50 font-medium text-center">Scan the barcode to automatically fetch product details.</p>
           
-          <div className="relative rounded-2xl overflow-hidden bg-gray-100 aspect-video border-2 border-dashed border-gray-300 flex items-center justify-center">
+          <div className="relative rounded-3xl overflow-hidden glass-card aspect-square border-2 border-dashed border-primary/30 flex items-center justify-center group shadow-2xl">
             {scanning ? (
               <>
                 <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-x-8 top-1/2 -mt-16 h-32 border-2 border-green-500 rounded-lg bg-green-500/10" />
+                <div className="absolute inset-x-12 top-1/2 -mt-20 h-40 border-2 border-primary rounded-2xl bg-primary/5 shadow-[0_0_100px_rgba(16,185,129,0.3)] animate-pulse" />
                 <button
                   onClick={stopScanner}
-                  className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-gray-900/80 text-white text-sm font-medium rounded-full shadow-lg"
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-red-500 text-white text-xs font-bold rounded-full shadow-lg uppercase tracking-widest hover:scale-105 transition-transform"
                 >
                   Cancel Scan
                 </button>
@@ -166,43 +171,45 @@ export default function AddProduct() {
             ) : (
               <button
                 onClick={startScanner}
-                className="flex flex-col items-center justify-center text-gray-500 hover:text-green-600 transition-colors cursor-pointer"
+                className="flex flex-col items-center justify-center text-foreground/40 hover:text-primary transition-all duration-300 cursor-pointer group-hover:scale-110"
               >
-                <Camera className="w-12 h-12 mb-3 text-gray-400" />
-                <span className="font-medium">Tap to open Camera</span>
+                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Camera className="w-10 h-10 text-primary" />
+                </div>
+                <span className="font-bold tracking-tight">Tap to open Camera</span>
               </button>
             )}
           </div>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-foreground/5" />
             </div>
             <div className="relative flex justify-center">
-              <span className="px-2 bg-white text-sm text-gray-500">or enter manually</span>
+              <span className="px-4 bg-transparent text-xs font-bold text-foreground/30 uppercase tracking-widest">or enter manually</span>
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <input
               type="text"
               placeholder="e.g. 3017620422003"
-              className="flex-1 px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex-1 px-5 py-4 glass-card border-none placeholder-foreground/20 text-foreground rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary font-medium"
               value={barcode}
               onChange={(e) => setBarcode(e.target.value)}
             />
             <button
               onClick={() => handleBarcodeSubmit(barcode)}
               disabled={loading || !barcode}
-              className="px-5 py-3 bg-green-600 text-white rounded-xl shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex items-center disabled:opacity-50"
+              className="px-6 py-4 bg-primary text-primary-foreground rounded-2xl shadow-lg shadow-primary/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center disabled:opacity-50 active:scale-95 transition-all font-bold"
             >
-              <Search className="w-5 h-5 mr-1 -ml-1" /> Look up
+              <Search className="w-5 h-5" />
             </button>
           </div>
           
           <button
              onClick={() => setStep('INFO')}
-             className="w-full py-3 text-gray-500 font-medium hover:text-gray-900 transition-colors"
+             className="w-full py-4 text-foreground/40 font-bold hover:text-primary transition-colors text-xs uppercase tracking-widest"
           >
             Skip barcode completely
           </button>
@@ -211,39 +218,43 @@ export default function AddProduct() {
 
       {/* STEP 2: INFO */}
       {step === 'INFO' && (
-        <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-          <p className="text-gray-600">Verify and edit product details.</p>
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+          <p className="text-foreground/50 font-medium text-center">Verify and edit product details.</p>
           
           {imageUrl && (
-            <div className="flex justify-center mb-6">
-              <img src={imageUrl} alt="Product" className="h-32 object-contain rounded-xl shadow-sm border border-gray-100" />
+            <div className="flex justify-center mb-8">
+              <div className="p-4 glass-card rounded-3xl shadow-xl">
+                <img src={imageUrl} alt="Product" className="h-40 w-40 object-contain rounded-2xl" />
+              </div>
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Product Name <span className="text-red-500">*</span></label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-            <input
-              type="text"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-            />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground/40 uppercase tracking-widest mb-2 ml-1">Product Name <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                required
+                className="w-full px-5 py-4 glass-card border-none text-foreground rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary font-bold text-lg"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground/40 uppercase tracking-widest mb-2 ml-1">Brand</label>
+              <input
+                type="text"
+                className="w-full px-5 py-4 glass-card border-none text-foreground rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary font-medium"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+              />
+            </div>
           </div>
 
           <button
             onClick={() => setStep('OCR')}
             disabled={!name}
-            className="w-full mt-6 py-3 bg-green-600 text-white rounded-xl shadow font-medium hover:bg-green-700 transition disabled:opacity-50"
+            className="w-full mt-8 py-4 bg-primary text-primary-foreground rounded-2xl shadow-xl shadow-primary/20 font-bold hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
           >
             Continue to Expiry Date
           </button>
@@ -252,10 +263,10 @@ export default function AddProduct() {
 
       {/* STEP 3: OCR */}
       {step === 'OCR' && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-          <p className="text-gray-600">Take a photo of the expiry date printed on the packaging.</p>
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+          <p className="text-foreground/50 font-medium text-center">Take a photo of the expiry date on the packaging.</p>
           
-          <div className="relative rounded-2xl overflow-hidden bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-8 group hover:bg-gray-100 transition">
+          <div className="relative rounded-3xl overflow-hidden glass-card border-2 border-dashed border-primary/30 flex flex-col items-center justify-center p-12 group hover:bg-primary/5 transition-all shadow-xl">
             <input
               type="file"
               accept="image/*"
@@ -264,28 +275,30 @@ export default function AddProduct() {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               disabled={loading}
             />
-            <Upload className="w-12 h-12 mb-3 text-green-500 group-hover:scale-110 transition-transform" />
-            <span className="font-semibold text-gray-700">{loading ? 'Scanning AI Date...' : 'Tap to Upload or Photo'}</span>
-            <span className="text-sm text-gray-400 mt-1">Make sure the date is clearly visible</span>
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all group-hover:scale-110">
+              <Upload className="w-10 h-10 text-primary" />
+            </div>
+            <span className="font-bold text-foreground text-lg">{loading ? 'AI Analyzing Date...' : 'Capture Date'}</span>
+            <span className="text-[10px] uppercase tracking-widest text-foreground/30 mt-2 font-bold">Automatic Detection</span>
           </div>
 
           <div className="relative pt-4">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-foreground/5" />
             </div>
             <div className="relative flex justify-center">
-              <span className="px-2 bg-white text-sm text-gray-500">or enter manually</span>
+              <span className="px-4 bg-transparent text-xs font-bold text-foreground/30 uppercase tracking-widest">or enter manually</span>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date <span className="text-red-500">*</span></label>
+            <label className="block text-xs font-bold text-foreground/40 uppercase tracking-widest mb-2 ml-1">Expiry Date <span className="text-red-500">*</span></label>
             <div className="relative">
-              <CalendarIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <CalendarIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
               <input
                 type="date"
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full pl-12 pr-5 py-4 glass-card border-none text-foreground rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary font-bold appearance-none"
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
               />
@@ -295,7 +308,7 @@ export default function AddProduct() {
           <button
             onClick={() => setStep('CONFIRM')}
             disabled={!expiryDate}
-            className="w-full mt-6 py-3 bg-green-600 text-white rounded-xl shadow font-medium hover:bg-green-700 transition disabled:opacity-50"
+            className="w-full mt-8 py-4 bg-primary text-primary-foreground rounded-2xl shadow-xl shadow-primary/20 font-bold hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
           >
             Review Details
           </button>
@@ -304,49 +317,54 @@ export default function AddProduct() {
 
       {/* STEP 4: CONFIRM */}
       {step === 'CONFIRM' && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-          <p className="text-gray-600">Review your item before saving to inventory.</p>
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+          <p className="text-foreground/50 font-medium text-center">Review your item before saving to inventory.</p>
           
-          <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div className="glass-card rounded-3xl p-8 border-white/10 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -mr-16 -mt-16 rounded-full" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/5 blur-3xl -ml-16 -mb-16 rounded-full" />
+
             {imageUrl && (
-               <img src={imageUrl} alt={name} className="w-24 h-24 object-contain rounded-xl mx-auto mb-6 bg-white shadow-sm" />
+               <div className="relative bg-background rounded-2xl p-2 w-28 h-28 mx-auto mb-8 shadow-inner border border-white/5">
+                 <img src={imageUrl} alt={name} className="w-full h-full object-contain rounded-xl" />
+               </div>
             )}
             
-            <dl className="space-y-4">
-              <div className="flex justify-between pb-3 border-b border-gray-200">
-                <dt className="text-sm font-medium text-gray-500">Product</dt>
-                <dd className="text-sm font-bold text-gray-900 text-right">{name}</dd>
+            <dl className="space-y-6 relative z-10">
+              <div className="flex flex-col gap-1 border-b border-white/5 pb-4">
+                <dt className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">Product</dt>
+                <dd className="text-xl font-extrabold text-foreground">{name}</dd>
               </div>
               {brand && (
-                <div className="flex justify-between pb-3 border-b border-gray-200">
-                  <dt className="text-sm font-medium text-gray-500">Brand</dt>
-                  <dd className="text-sm font-medium text-gray-900 text-right">{brand}</dd>
+                <div className="flex flex-col gap-1 border-b border-white/5 pb-4">
+                  <dt className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">Brand</dt>
+                  <dd className="text-lg font-bold text-foreground/70">{brand}</dd>
                 </div>
               )}
-               <div className="flex justify-between pb-3 border-b border-gray-200">
-                <dt className="text-sm font-medium text-gray-500">Barcode</dt>
-                <dd className="text-sm font-medium text-gray-900 text-right">{barcode || 'Manual Entry'}</dd>
+               <div className="flex flex-col gap-1 border-b border-white/5 pb-4">
+                <dt className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">Barcode</dt>
+                <dd className="text-sm font-mono text-foreground/50">{barcode || 'Manual Entry'}</dd>
               </div>
-              <div className="flex justify-between pt-1">
-                <dt className="text-sm font-medium text-gray-500">Expiring On</dt>
-                <dd className="text-sm font-bold text-red-600 text-right">
+              <div className="flex flex-col gap-1">
+                <dt className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">Expiry Date</dt>
+                <dd className="text-2xl font-black text-red-500">
                   {expiryDate ? format(new Date(expiryDate), 'MMMM do, yyyy') : 'No Date'}
                 </dd>
               </div>
             </dl>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-4">
              <button
               onClick={() => setStep('INFO')}
-              className="flex-1 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl shadow-sm font-medium hover:bg-gray-50 transition"
+              className="flex-1 py-4 glass-card border border-white/10 text-foreground rounded-2xl shadow-xl font-bold hover:bg-foreground/5 transition-all active:scale-95"
             >
               Edit
             </button>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="flex-[2] py-3 bg-green-600 text-white rounded-xl shadow font-medium hover:bg-green-700 transition disabled:opacity-50"
+              className="flex-[2] py-4 bg-primary text-primary-foreground rounded-2xl shadow-xl shadow-primary/30 font-black text-lg hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save to Fridge'}
             </button>

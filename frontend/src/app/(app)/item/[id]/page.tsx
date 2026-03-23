@@ -69,16 +69,16 @@ export default function ItemDetail() {
   if (!item) return <div className="min-h-screen flex text-red-500 items-center justify-center">{error}</div>;
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 pb-24 max-w-lg mx-auto bg-gray-50">
-      <header className="mb-6 mt-4 flex items-center justify-between">
+    <div className="min-h-screen p-6 pb-32 max-w-lg mx-auto page-transition">
+      <header className="mb-10 mt-6 flex items-center justify-between">
         <button
           onClick={() => router.back()}
-           className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors rounded-full hover:bg-gray-100"
+           className="p-3 -ml-3 text-foreground/40 hover:text-primary transition-all rounded-2xl glass-card border-white/10 active:scale-95"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Edit Item</h1>
-        <div className="w-10"></div> {/* Spacer for centering */}
+        <h1 className="text-3xl font-extrabold text-foreground tracking-tight bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">Edit Item</h1>
+        <div className="w-12"></div>
       </header>
 
       {error && (
@@ -88,49 +88,57 @@ export default function ItemDetail() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+      <div className="glass-card rounded-3xl p-8 space-y-8 shadow-2xl border-white/10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 rounded-full" />
+        
         {item.imageUrl && (
-          <div className="flex justify-center mb-2">
-            <img src={item.imageUrl} alt={item.name} className="h-32 object-contain rounded-xl" />
+          <div className="flex justify-center mb-4">
+            <div className="p-4 glass-card rounded-3xl shadow-lg bg-background/50">
+              <img src={item.imageUrl} alt={item.name} className="h-40 w-40 object-contain rounded-2xl" />
+            </div>
           </div>
         )}
 
-        <div>
-           <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-           <input
-             type="text"
-             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
-             value={name}
-             onChange={(e) => setName(e.target.value)}
-           />
+        <div className="space-y-6 relative z-10">
+          <div>
+             <label className="block text-xs font-bold text-foreground/40 uppercase tracking-widest mb-3 ml-1">Product Name</label>
+             <input
+               type="text"
+               required
+               className="w-full px-5 py-4 glass-card border-none text-foreground rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary font-bold text-lg transition-all"
+               value={name}
+               onChange={(e) => setName(e.target.value)}
+             />
+          </div>
+
+          <div>
+             <label className="block text-xs font-bold text-foreground/40 uppercase tracking-widest mb-3 ml-1">Expiry Date</label>
+             <input
+               type="date"
+               className="w-full px-5 py-4 glass-card border-none text-foreground rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary font-bold transition-all appearance-none"
+               value={expiryDate}
+               onChange={(e) => setExpiryDate(e.target.value)}
+             />
+          </div>
         </div>
 
-        <div>
-           <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-           <input
-             type="date"
-             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
-             value={expiryDate}
-             onChange={(e) => setExpiryDate(e.target.value)}
-           />
-        </div>
-
-        <div className="pt-4 flex gap-3">
+        <div className="pt-6 flex gap-4 relative z-10">
           <button
             onClick={handleDelete}
-            className="px-4 py-3 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors flex items-center justify-center flex-1"
+            className="px-6 py-4 glass-card border border-red-500/20 text-red-500 rounded-2xl font-bold hover:bg-red-500/10 transition-all flex items-center justify-center flex-1 active:scale-95"
           >
             <Trash2 className="w-5 h-5 mr-1" /> Delete
           </button>
           <button
             onClick={handleUpdate}
             disabled={saving || !name || !expiryDate}
-            className="px-4 py-3 bg-green-600 text-white rounded-xl shadow font-medium hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center flex-[2]"
+            className="px-6 py-4 bg-primary text-primary-foreground rounded-2xl shadow-xl shadow-primary/30 font-black text-lg hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center flex-[2] active:scale-95"
           >
-            <Save className="w-5 h-5 mr-1" /> {saving ? 'Saving...' : 'Save Changes'}
+            <Save className="w-5 h-5 mr-1" /> {saving ? 'Saving...' : 'Save'}
           </button>
         </div>
       </div>
+
     </div>
   );
 }
