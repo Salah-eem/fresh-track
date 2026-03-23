@@ -13,7 +13,7 @@ async function bootstrap() {
   
   // Enable CORS for frontend connection
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000' || 'https://fresh-track-chi.vercel.app',
+    origin: ['http://localhost:3000', 'https://fresh-track-chi.vercel.app'],
     credentials: true,
   });
 
