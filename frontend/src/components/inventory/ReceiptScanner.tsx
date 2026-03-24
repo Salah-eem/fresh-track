@@ -72,7 +72,6 @@ export default function ReceiptScanner() {
           ref={fileInputRef}
           onChange={handleFileUpload}
           accept="image/*"
-          capture="environment"
           className="hidden"
         />
       </div>
