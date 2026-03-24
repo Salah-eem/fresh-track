@@ -31,7 +31,7 @@ model InventoryItem {
   id            String             @id @default(uuid())
   user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
-  barcode       String
+  barcode       String?
   name          String
   brand         String?
   imageUrl      String?

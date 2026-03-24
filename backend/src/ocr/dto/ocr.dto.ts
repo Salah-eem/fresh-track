@@ -5,3 +5,9 @@ export class ExtractDateDto {
   @IsNotEmpty()
   base64Image: string;
 }
+
+export class ProcessReceiptDto {
+  @IsString()
+  @IsNotEmpty()
+  base64Image: string;
+}

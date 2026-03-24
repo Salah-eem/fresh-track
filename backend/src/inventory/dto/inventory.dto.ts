@@ -2,8 +2,8 @@ import { IsBoolean, IsDateString, IsNotEmpty, IsOptional, IsString } from 'class
 
 export class CreateInventoryItemDto {
   @IsString()
-  @IsNotEmpty()
-  barcode: string;
+  @IsOptional()
+  barcode?: string;
 
   @IsString()
   @IsNotEmpty()

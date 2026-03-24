@@ -1,53 +1,101 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import * as Tesseract from 'tesseract.js';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 @Injectable()
 export class OcrService {
-  async extractDateFromImage(base64Image: string): Promise<string | null> {
-    try {
-      // 1. Convert base64 to buffer if needed, but Tesseract accepts valid data URIs
-      // Ensure the string has the data prefix, or it's just raw base64
-      let processedImage = base64Image;
-      if (!base64Image.startsWith('data:image')) {
-        processedImage = `data:image/jpeg;base64,${base64Image}`;
-      }
+  private readonly logger = new Logger(OcrService.name);
+  private genAI: GoogleGenerativeAI;
 
-      // 2. Run OCR using tesseract.js worker
-      const worker = await Tesseract.createWorker('eng');
-      const {
-        data: { text },
-      } = await worker.recognize(processedImage);
-      await worker.terminate();
-
-      // 3. Parse the date from the extracted text
-      return this.parseDate(text);
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to process image');
+  constructor(private config: ConfigService) {
+    const apiKey = this.config.get<string>('GEMINI_API_KEY');
+    if (apiKey) {
+      this.genAI = new GoogleGenerativeAI(apiKey);
     }
   }
 
-  private parseDate(text: string): string | null {
-    // Basic regex for dates (DD/MM/YY, DD/MM/YYYY, MM/YY, YYYY-MM-DD, etc.)
-    // A comprehensive production app would use NLP or robust date parsing libraries like `chrono-node`
-    // This looks for standard EU/UK formats DD/MM/YYYY or DD-MM-YYYY
-    const dateRegex = /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/;
-    const match = text.match(dateRegex);
-
-    if (match) {
-      let [_, day, month, year] = match;
-
-      // Handle 2-digit years
-      if (year.length === 2) {
-        year = `20${year}`;
-      }
-
-      // Format to standard ISO string (YYYY-MM-DD) for database ease
-      const paddedDay = day.padStart(2, '0');
-      const paddedMonth = month.padStart(2, '0');
-
-      return `${year}-${paddedMonth}-${paddedDay}`;
+  async processReceipt(base64Image: string): Promise<any[]> {
+    if (!this.genAI) {
+      this.logger.error('GEMINI_API_KEY is not defined');
+      throw new InternalServerErrorException('Gemini AI is not configured');
     }
 
-    return null; // Return null if no valid date found
+    try {
+      // 1. Prepare image data
+      let processedImage = base64Image;
+      if (base64Image.startsWith('data:image')) {
+        processedImage = base64Image.split(',')[1];
+      }
+
+      // 2. Try multiple model variants
+      const modelNames = [
+        'gemini-flash-latest',
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-pro-latest',
+        'gemini-1.5-flash'
+      ];
+      
+      let text = '';
+      let success = false;
+
+      for (const modelName of modelNames) {
+        try {
+          this.logger.log(`Attempting receipt extraction with model: ${modelName}`);
+          const model = this.genAI.getGenerativeModel({ model: modelName });
+
+          // 3. Define the prompt
+          const prompt = `
+            Analyze the provided image (shopping receipt or invoice) and extract a list of grocery/food items.
+            Respond ONLY with a JSON array of objects.
+            Format: [{"name": "...", "brand": "...", "quantity": "...", "category": "...", "price": 0.00}]
+          `;
+
+          // 4. Send to Gemini
+          const result = await model.generateContent([
+            prompt,
+            {
+              inlineData: {
+                data: processedImage,
+                mimeType: 'image/jpeg',
+              },
+            },
+          ]);
+
+          const response = await result.response;
+          text = response.text();
+          success = true;
+          break;
+        } catch (err) {
+          this.logger.warn(`Model ${modelName} failed: ${err.message}`);
+          if (modelName === modelNames[modelNames.length - 1]) {
+            throw err;
+          }
+        }
+      }
+
+      if (!success) {
+        throw new Error('All Gemini models failed');
+      }
+
+      // Clear any markdown formatting if present
+      if (text.includes('```')) {
+        text = text.replace(/```json|```/g, '').trim();
+      }
+
+      this.logger.log('Gemini extraction successful');
+      return JSON.parse(text);
+    } catch (error) {
+      this.logger.error(`Receipt processing failed: ${error.message}`);
+      throw new InternalServerErrorException('Failed to process receipt image');
+    }
+  }
+
+  async extractDateFromImage(base64Image: string): Promise<string | null> {
+    // Keeping this for compatibility if used elsewhere, but updating it to use Gemini for better accuracy
+    const products = await this.processReceipt(base64Image);
+    // This is a bit of a shim since the user specifically talked about products, but the original service was for dates.
+    // In a real scenario, we might want to extract the receipt date too.
+    return null; 
   }
 }

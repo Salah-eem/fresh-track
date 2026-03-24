@@ -7,6 +7,7 @@ import { format, differenceInDays } from 'date-fns';
 import { Trash2, AlertTriangle, CheckCircle, Clock, PackageSearch } from 'lucide-react';
 import Link from 'next/link';
 import ThemeToggle from '../../../components/ThemeToggle';
+import ReceiptScanner from '../../../components/inventory/ReceiptScanner';
 
 interface InventoryItem {
   id: string;
@@ -95,6 +96,10 @@ export default function Dashboard() {
         </div>
         <ThemeToggle />
       </header>
+
+      <div className="mb-8">
+        <ReceiptScanner />
+      </div>
 
       {items.length === 0 ? (
         <div className="text-center py-20 glass-card rounded-2xl border-dashed border-2 border-primary/20">
