@@ -126,7 +126,7 @@ export default function ReceiptReviewModal({ items: initialItems, onClose, onCon
           <button
             onClick={handleConfirm}
             disabled={isSubmitting || items.length === 0}
-            className="flex-[2] p-4 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="flex-[2] p-4 rounded-2xl bg-green-800 text-white font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSubmitting ? (
               <Loader2 className="w-6 h-6 animate-spin" />

@@ -8,6 +8,7 @@ import { Trash2, AlertTriangle, CheckCircle, Clock, PackageSearch } from 'lucide
 import Link from 'next/link';
 import ThemeToggle from '../../../components/ThemeToggle';
 import ReceiptScanner from '../../../components/inventory/ReceiptScanner';
+import NotificationSettings from '../../../components/NotificationSettings';
 
 interface InventoryItem {
   id: string;
@@ -97,8 +98,9 @@ export default function Dashboard() {
         <ThemeToggle />
       </header>
 
-      <div className="mb-8">
+      <div className="mb-8 space-y-4">
         <ReceiptScanner />
+        <NotificationSettings />
       </div>
 
       {items.length === 0 ? (

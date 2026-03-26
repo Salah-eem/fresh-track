@@ -13,9 +13,10 @@ model User {
   email          String          @unique
   passwordHash   String
   name           String?
-  inventoryItems InventoryItem[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  inventoryItems    InventoryItem[]
+  pushSubscriptions PushSubscription[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 }
 
 model Product {
@@ -50,4 +51,14 @@ model NotificationSent {
   sentAt          DateTime      @default(now())
 
   @@unique([inventoryItemId, type])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
 }

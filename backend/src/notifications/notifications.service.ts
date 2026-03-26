@@ -1,13 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import * as cron from 'node-cron';
 import { PrismaService } from '../prisma/prisma.service';
-import webpush from 'web-push';
+import { EmailService } from '../email/email.service';
+import * as webpush from 'web-push';
+import { PushSubscriptionDto } from './dto/notifications.dto';
 
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {
     this.setupWebPush();
     // Schedule task every day at 8:00 AM
     cron.schedule('0 8 * * *', () => {
@@ -20,12 +25,36 @@ export class NotificationsService {
     try {
       webpush.setVapidDetails(
         'mailto:contact@freshtrack.app', // Should ideally be in env
-        process.env.VAPID_PUBLIC_KEY || 'dummy_public_key',
-        process.env.VAPID_PRIVATE_KEY || 'dummy_private_key',
+        process.env.VAPID_PUBLIC_KEY || '',
+        process.env.VAPID_PRIVATE_KEY || '',
       );
     } catch (error) {
       this.logger.warn('VAPID keys are invalid or missing. Push notifications disabled.');
     }
+  }
+
+  async subscribe(userId: string, dto: PushSubscriptionDto) {
+    const existing = await this.prisma.pushSubscription.findUnique({
+      where: { endpoint: dto.endpoint },
+    });
+
+    if (existing) {
+      if (existing.userId === userId) return existing;
+      // Re-assign subscription to new user if endpoint is same (unlikely but possible)
+      return this.prisma.pushSubscription.update({
+        where: { id: existing.id },
+        data: { userId },
+      });
+    }
+
+    return this.prisma.pushSubscription.create({
+      data: {
+        userId,
+        endpoint: dto.endpoint,
+        p256dh: dto.keys.p256dh,
+        auth: dto.keys.auth,
+      },
+    });
   }
 
   async checkExpiringItems() {
@@ -58,10 +87,12 @@ export class NotificationsService {
     });
 
     for (const item of expiringItems) {
-      const isToday = item.expiryDate.getTime() === today.getTime();
+      // Normalize expiryDate to midnight for comparison
+      const itemExpiryDate = new Date(item.expiryDate);
+      itemExpiryDate.setHours(0, 0, 0, 0);
+      const isToday = itemExpiryDate.getTime() === today.getTime();
       const notificationType = isToday ? 'DAY_OF' : 'THREE_DAYS';
 
-      // Ensure we haven't already sent THIS specific notification type for THIS item
       const alreadySent = await this.prisma.notificationSent.findUnique({
         where: {
           inventoryItemId_type: {
@@ -72,11 +103,61 @@ export class NotificationsService {
       });
 
       if (!alreadySent) {
-        // Here we'd map over user's subscribed push endpoints.
-        // For MVP, we'll just log and create DB audit record
-        this.logger.log(`Item ${item.name} is expiring (${notificationType})! Notification sent to ${item.user.email}`);
+        // Calculate days until expiry
+        const daysUntilExpiry = isToday ? 0 : 3;
 
-        // Mark as sent in DB
+        // Send Push Notifications
+        const subscriptions = await this.prisma.pushSubscription.findMany({
+          where: { userId: item.userId },
+        });
+
+        const payload = JSON.stringify({
+          title: 'Alerte Expiration !',
+          body: `${item.name} (${item.brand || ''}) s'expire ${isToday ? "aujourd'hui" : "dans 3 jours"}.`,
+          icon: '/icon-192x192.png',
+          data: {
+            url: `/item/${item.id}`,
+          },
+        });
+
+        for (const sub of subscriptions) {
+          try {
+            await webpush.sendNotification(
+              {
+                endpoint: sub.endpoint,
+                keys: {
+                  p256dh: sub.p256dh,
+                  auth: sub.auth,
+                },
+              },
+              payload,
+            );
+          } catch (error: any) {
+            this.logger.error(`Failed to send push to ${sub.endpoint}: ${error.message}`, error.stack);
+            if (error.statusCode === 410 || error.statusCode === 404) {
+              await this.prisma.pushSubscription.delete({ where: { id: sub.id } });
+            }
+          }
+        }
+
+        // Send Email Notification
+        try {
+          await this.emailService.sendExpiryNotification(
+            item.user.email,
+            item.name,
+            item.brand,
+            item.expiryDate,
+            daysUntilExpiry,
+          );
+        } catch (error) {
+          this.logger.error(
+            `Failed to send expiry email to ${item.user.email}:`,
+            error,
+          );
+        }
+
+        this.logger.log(`Item ${item.name} is expiring (${notificationType})! Notifications sent (push + email).`);
+
         await this.prisma.notificationSent.create({
           data: {
             inventoryItemId: item.id,
@@ -84,7 +165,6 @@ export class NotificationsService {
           },
         });
 
-        // If today, also mark as expired after notification
         if (isToday) {
           await this.prisma.inventoryItem.update({
             where: { id: item.id },
