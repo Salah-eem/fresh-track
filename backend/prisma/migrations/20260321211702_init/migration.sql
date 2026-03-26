@@ -26,7 +26,7 @@ CREATE TABLE "Product" (
 CREATE TABLE "InventoryItem" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "barcode" TEXT NOT NULL,
+    "barcode" TEXT,
     "name" TEXT NOT NULL,
     "brand" TEXT,
     "imageUrl" TEXT,

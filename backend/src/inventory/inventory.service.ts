@@ -40,10 +40,10 @@ export class InventoryService {
     const item = await this.prisma.inventoryItem.create({
       data: {
         userId,
-        barcode: dto.barcode,
+        barcode: dto.barcode || null,
         name: dto.name,
-        brand: dto.brand,
-        imageUrl: dto.imageUrl,
+        brand: dto.brand || null,
+        imageUrl: dto.imageUrl || null,
         expiryDate: new Date(dto.expiryDate),
         isExpired,
       },
